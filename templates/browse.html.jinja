@@ -13,11 +13,18 @@
 <body>
     {% include "components/navbar.html.jinja"%}
     <h1>Browse the Proquipment Store</h1>
-    {# change below line tmrw #}
+    {# Form for searching #}
+    <form class="container" action="/browse">
+        <div class="input-group mb-3">
+            <button class="btn btn-outline-primary" type="submit">Search</button>
+            <input type="text" name="query" class="form-control" placeholder=""
+                aria-label="Example text with button addon" aria-describedby="button-addon1">
+        </div>
+    </form>
     <main class="container row g-4 mx-auto">
         {% for item in products %}
-        <div class="col-4">
-            <div class="card row-3">
+        <div class="col-md-6 col-lg-4 col-20">
+            <div class="card">
                 <img src="{{ item['image'] }}" class="card-img-top" alt="{{ item['name'] }}">
                 <div class="card-body">
                     <h5 class="card-title">{{ item["name"] }}</h5>
