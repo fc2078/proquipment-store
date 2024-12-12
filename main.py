@@ -11,6 +11,7 @@ conf = Dynaconf(
 )
 
 def connect_db():
+    """Connect to database"""
     conn = pymysql.connect(
         host = "10.100.34.80",
         database = "fchowdury_proquipment_store",
@@ -38,3 +39,13 @@ def product_browse():
     cursor.close()
     conn.close()
     return render_template("browse.html.jinja", products = results)
+
+@app.route("/product/<product_id>")
+def product_page(product_id):
+    conn = connect_db()
+    cursor = conn.cursor()
+    cursor.execute(f"SELECT * FROM `product` WHERE `id` = {product_id};")
+    result = cursor.fetchone()
+    cursor.close()
+    conn.close()
+    return result
