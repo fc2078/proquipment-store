@@ -49,3 +49,13 @@ def product_page(product_id):
     cursor.close()
     conn.close()
     return render_template("product.html.jinja", product = result)
+
+@app.route("/signup")
+def signup_page():
+    conn = connect_db()
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM `Category`;")
+    result = cursor.fetchone()
+    cursor.close()
+    conn.close()
+    return render_template("signup.html.jinja", category = result)

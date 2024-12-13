@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Sign Up</title>
+    <link href="bootstrap.css" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Catamaran:wght@100..900&family=Oxygen:wght@300;400;700&display=swap"
+        rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Catamaran:wght@100..900&family=Oxygen:wght@300;400;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
+    <link rel="icon" type="image/x-icon" href="/images/logo.png">
+</head>
+
+<body class="bg-secondary">
+    <nav class="navbar navbar-dark navbar-expand-lg bg-body-tertiary sticky-top bg-primary">
+        <div class="container-fluid">
+            <a class="navbar-brand text-light mr-5" href="#">
+                <img src="images/logo.png" alt="Logo and brand name (Viobot)" width="30" height="24"
+                    class="d-inline-block align-text-top ">
+                Viobot
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false"
+                aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse justify-content-between" id="navbarSupportedContent">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0" style="font-size: 1.2rem;">
+                    <li class="nav-item">
+                        <a class="nav-link text-light mr-3" href="index.html">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-light mr-3" href="products.html">Products</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-light mr-3" href="contacts.html">Contact</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-light mr-3" href="FAQ-Page.html">FAQs</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-light mr-3" href="team.html">Team</a>
+                    </li>
+                </ul>
+
+                <div class="mx-auto">
+                    <form class="d-flex" role="search">
+                        <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search"
+                            style="width: 280px;">
+                        <button class="btn btn-primary" type="submit">Search</button>
+                    </form>
+                </div>
+                <div class="ml-2 mr-4">
+                    <a href="my-cart-page.html" class="btn btn-primary">
+                        <img src="images/cart.png" alt="Cart" width="40" height="40"
+                            class="d-inline-block align-text-top">
+                    </a>
+                </div>
+                <a class="navbar-brand text-light fs-6 btn btn-primary" href="sign-in-page.html">Sign In</a>
+            </div>
+        </div>
+    </nav>
+    <section class="p-2 m-2">
+        <div class="container mt-5">
+            <div class="row justify-content-center">
+                <div class="col-md-6">
+                    <div class="border border-light p-4 wow animate__animated animate__jackInTheBox"
+                        data-wow-delay="0.2s">
+                        <h2 class="mb-4 text-light text-center wow animate__animated animate__fadeInDown"
+                            data-wow-delay="0.5s">Sign
+                            Up</h2>
+                        <form>
+                            <div class="form-group text-light wow animate__animated animate__fadeInLeft"
+                                data-wow-delay="1s">
+                                <label for="username">Username:</label>
+                                <input type="text" class="form-control" id="username" name="username" required
+                                    placeholder="JohnDoe">
+                            </div>
+                            <div class="form-group text-light wow animate__animated animate__fadeInRight"
+                                data-wow-delay="1.5s">
+                                <label for="email">Email:</label>
+                                <input type="email" class="form-control" id="email" name="email" required
+                                    placeholder="johndoe@gmail.com">
+                            </div>
+                            <div class="form-group text-light wow animate__animated animate__fadeInUp"
+                                data-wow-delay="2s">
+                                <label for="password">Password:</label>
+                                <input type="password" class="form-control" id="password" name="password" required
+                                    placeholder="Password@123">
+                            </div>
+                            <div class="form-group text-light wow animate__animated animate__fadeInTopLeft"
+                                data-wow-delay="2.5s">
+                                <label for="confirmPassword">Confirm Password:</label>
+                                <input type="password" class="form-control" id="confirmPassword" name="confirmPassword"
+                                    required placeholder="Password@123">
+                            </div>
+                            <div class="border border-light text-light p-3 mt-3 wow animate__animated animate__fadeInBottomRight"
+                                data-wow-delay="3s">
+                                <strong>Password requirements:</strong>
+                                <ul>
+                                    <li>Must be 8-20 characters long.</li>
+                                    <li>Must include special characters.</li>
+                                    <li>Must include an upper case and a lower case character.</li>
+                                    <li>No Spaces</li>
+                                </ul>
+                            </div>
+                            <div class="d-flex justify-content-between">
+                                <a href="index.html" type="submit"
+                                    class="btn btn-primary mt-3 wow animate__animated animate__lightSpeedInLeft"
+                                    data-wow-delay="3.5s">Sign Up</a>
+                                <a href="sign-in-page.html" type="submit"
+                                    class="btn btn-primary mt-3 wow animate__animated animate__lightSpeedInRight"
+                                    data-wow-delay="3.5s">Already have an account?</a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <footer>
+        <hr>
+        <img src="images/mainLogo.png" alt="Viobot Main Icon" id="viobot">
+        <br>
+        <p class="copyright">© 2024 VioBot. All rights reserved. Do not redistribute our code in any way or form.</p>
+    </footer>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/wow/1.1.2/wow.min.js"></script>
+</body>
+
+</html>
