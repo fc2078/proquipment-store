@@ -48,4 +48,4 @@ def product_page(product_id):
     result = cursor.fetchone()
     cursor.close()
     conn.close()
-    return result
+    return render_template("product.html.jinja", product = result)
