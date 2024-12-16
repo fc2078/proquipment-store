@@ -1,5 +1,5 @@
 # All imports
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, redirect
 import pymysql
 from dynaconf import Dynaconf
 
@@ -26,6 +26,7 @@ def connect_db():
 def index():
     return render_template('homepage.html.jinja')
 
+# Browsing page
 @app.route("/browse")
 def product_browse():
     query = request.args.get('query')
@@ -40,6 +41,7 @@ def product_browse():
     conn.close()
     return render_template("browse.html.jinja", products = results)
 
+# Products pages
 @app.route("/product/<product_id>")
 def product_page(product_id):
     conn = connect_db()
@@ -50,12 +52,27 @@ def product_page(product_id):
     conn.close()
     return render_template("product.html.jinja", product = result)
 
-@app.route("/signup")
+# Signup page
+@app.route("/signup", methods=["POST", "GET"])
 def signup_page():
-    conn = connect_db()
-    cursor = conn.cursor()
-    cursor.execute("SELECT * FROM `Category`;")
-    result = cursor.fetchone()
-    cursor.close()
-    conn.close()
-    return render_template("signup.html.jinja", category = result)
+    if request.method == "POST":
+        first_name = request.form["first_name"]
+        last_name = request.form["last_name"]
+        email = request.form["email"]
+        address = request.form["address"]
+        username = request.form["username"]
+        password = request.form["password"]
+        confirm_password = request.form["confirm_password"]
+        conn = connect_db()
+        cursor = conn.cursor()
+
+        cursor.execute(f"""
+            INSERT INTO `customer`
+                (`first_name`, `last_name`, `email`, `address`, `username`, `password`)
+            VALUES
+                ('{first_name}', '{last_name}', '{email}', '{address}', '{username}', '{password}');
+        """)
+
+        return redirect("/signin")
+    return render_template("signup.html.jinja")
+
