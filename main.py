@@ -1,5 +1,5 @@
 # All imports
-from flask import Flask, render_template, request, redirect
+from flask import Flask, render_template, request, redirect, flash
 import pymysql
 from dynaconf import Dynaconf
 
@@ -9,6 +9,8 @@ app = Flask(__name__)
 conf = Dynaconf(
     settings_file = ["settings.toml"]
 )
+
+app.secret_key = conf.secret_key
 
 def connect_db():
     """Connect to database"""
@@ -65,14 +67,20 @@ def signup_page():
         confirm_password = request.form["confirm_password"]
         conn = connect_db()
         cursor = conn.cursor()
-
-        cursor.execute(f"""
-            INSERT INTO `customer`
-                (`first_name`, `last_name`, `email`, `address`, `username`, `password`)
-            VALUES
-                ('{first_name}', '{last_name}', '{email}', '{address}', '{username}', '{password}');
-        """)
-
-        return redirect("/signin")
+        if password != confirm_password:
+            flash("Passwords do not match.")
+        try:
+            cursor.execute(f"""
+                INSERT INTO `customer`
+                    (`first_name`, `last_name`, `email`, `address`, `username`, `password`, `confirm_password`)
+                VALUES
+                    ('{first_name}', '{last_name}', '{email}', '{address}', '{username}', '{password}', '{confirm_password}');
+            """)
+        except pymysql.err.IntegrityError:
+            flash("Sorry, that username or email is already taken. Try another.")
+        else:
+            return redirect("/signin")
+        finally:
+            cursor.close()
+            conn.close()
     return render_template("signup.html.jinja")
-

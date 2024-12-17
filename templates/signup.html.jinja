@@ -31,26 +31,32 @@
                     form.</h6>
             </div>
             <hr>
+            {% for message in get_flashed_messages() %}
+            <div class="alert alert-danger" role="alert">
+                {{message}}
+            </div>
+            {% endfor %}
             <form action="/signup" method="post">
                 <h5 class="card-title text-left ml-2 textLapis">First Name:</h5>
                 <input type="text" class="form-control" name="first_name" placeholder="John" required
-                    style="visibility: visible;">
+                    style="visibility: visible;" value="{{ request.form.get('first_name', '') }}">
                 <br>
                 <h5 class="card-title text-left ml-2 textLapis">Last Name:</h5>
                 <input type="text" class="form-control" name="last_name" placeholder="Doe" required
-                    style="visibility: visible;">
+                    style="visibility: visible;" value="{{ request.form.get('last_name', '') }}">
                 <br>
                 <h5 class="card-title text-left ml-2 textLapis">Email:</h5>
                 <input type="email" class="form-control" name="email" id="exampleFormControlInput1"
-                    placeholder="proquipment@gmail.com" required style="visibility: visible;">
+                    placeholder="proquipment@gmail.com" required style="visibility: visible;"
+                    value="{{ request.form.get('email', '') }}">
                 <br>
                 <h5 class="card-title text-left ml-2 textLapis">Home Address:</h5>
                 <input type="text" class="form-control" name="address" placeholder="Address" required
-                    style="visibility: visible;">
+                    style="visibility: visible;" value="{{ request.form.get('address', '') }}">
                 <br>
                 <h5 class="card-title text-left ml-2 textLapis">Create a Username:</h5>
                 <input type="text" class="form-control" name="username" placeholder="thisdingus123" required
-                    style="visibility: visible;">
+                    style="visibility: visible;" value="{{ request.form.get('username', '') }}">
                 <br>
                 <h5 class="card-title text-left ml-2 textLapis">Create a Password:</h5>
                 <input type="password" class="form-control" name="password" placeholder="A strong password" required
@@ -59,6 +65,8 @@
                 <h5 class="card-title text-left ml-2 textLapis">Confirm Password:</h5>
                 <input type="password" class="form-control" name="confirm_password" placeholder="Retype your password"
                     required style="visibility: visible;">
+                <br>
+
                 <br>
                 <div class="d-grid gap-2 col-10 mx-auto">
                     <input class="btn btn-success btn-lg" type="submit" value="Sign Up" name="verify">
