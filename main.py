@@ -1,7 +1,8 @@
 # All imports
-from flask import Flask, render_template, request, redirect, flash
+from flask import Flask, render_template, request, redirect, flash, abort
 import pymysql
 from dynaconf import Dynaconf
+import flask_login as login
 
 # Declare Flash application
 app = Flask(__name__)
@@ -43,6 +44,8 @@ def product_browse():
     conn.close()
     return render_template("browse.html.jinja", products = results)
 
+
+
 # Products pages
 @app.route("/product/<product_id>")
 def product_page(product_id):
@@ -50,37 +53,127 @@ def product_page(product_id):
     cursor = conn.cursor()
     cursor.execute(f"SELECT * FROM `product` WHERE `id` = {product_id};")
     result = cursor.fetchone()
+    if result is None:
+        abort(404)
     cursor.close()
     conn.close()
     return render_template("product.html.jinja", product = result)
 
+
+
 # Signup page
 @app.route("/signup", methods=["POST", "GET"])
 def signup_page():
-    if request.method == "POST":
-        first_name = request.form["first_name"]
-        last_name = request.form["last_name"]
-        email = request.form["email"]
-        address = request.form["address"]
-        username = request.form["username"]
-        password = request.form["password"]
-        confirm_password = request.form["confirm_password"]
-        conn = connect_db()
-        cursor = conn.cursor()
-        if password != confirm_password:
-            flash("Passwords do not match.")
-        try:
-            cursor.execute(f"""
-                INSERT INTO `customer`
-                    (`first_name`, `last_name`, `email`, `address`, `username`, `password`, `confirm_password`)
-                VALUES
-                    ('{first_name}', '{last_name}', '{email}', '{address}', '{username}', '{password}', '{confirm_password}');
-            """)
-        except pymysql.err.IntegrityError:
-            flash("Sorry, that username or email is already taken. Try another.")
-        else:
-            return redirect("/signin")
-        finally:
-            cursor.close()
-            conn.close()
+    if login.current_user.is_authenticated():
+        return redirect("/")
+    else:
+        if request.method == "POST":
+            first_name = request.form["first_name"]
+            last_name = request.form["last_name"]
+            email = request.form["email"]
+            address = request.form["address"]
+            username = request.form["username"]
+            password = request.form["password"]
+            confirm_password = request.form["confirm_password"]
+            conn = connect_db()
+            cursor = conn.cursor()
+            if password != confirm_password:
+                flash("Passwords do not match.")
+            try:
+                cursor.execute(f"""
+                    INSERT INTO `customer`
+                        (`first_name`, `last_name`, `email`, `address`, `username`, `password`, `confirm_password`)
+                    VALUES
+                        ('{first_name}', '{last_name}', '{email}', '{address}', '{username}', '{password}', '{confirm_password}');
+                """)
+            except pymysql.err.IntegrityError:
+                flash("Sorry, that username or email is already taken. Try another.")
+            else:
+                return redirect("/login")
+            finally:
+                cursor.close()
+                conn.close()
     return render_template("signup.html.jinja")
+
+# Login manager
+login_manager = login.LoginManager()
+login_manager.init_app(app)
+login_manager.login_view = "/login"
+
+
+# User class
+class User:
+    is_authenticated = True
+    is_anonymous = False
+    is_active = True
+
+    def __init__(self, user_id, username, email, first_name, last_name):
+        self.id = user_id
+        self.username = username
+        self.email = email
+        self.first_name = first_name
+        self.last_name = last_name
+
+    def get_id(self):
+        return str(self.id)
+
+@login_manager.user_loader
+def load_user(user_id):
+    conn = connect_db()
+    
+    cursor = conn.cursor()
+
+    cursor.execute(f"SELECT * FROM `Customer` WHERE `id` = {user_id};")
+
+    result = cursor.fetchone()
+    
+    ##Close Connections
+    cursor.close()
+    conn.close
+
+    if result is not None:
+        return User(result["id"], result["username"], result["email"], result["first_name"], result["last_name"])
+
+@app.route("/login", methods=["POST", "GET"])
+def login_page():
+    if login.current_user.is_authenticated():
+        return redirect("/")
+    else:
+        if request.method == "POST":
+            username = request.form["userVer"].strip()
+            password = request.form["passVer"]
+
+            conn = connect_db()
+
+            cursor = conn.cursor()
+
+            cursor.execute(f"SELECT * FROM `Customer` WHERE `username` = '{username}';")
+            
+            result = cursor.fetchone()
+
+            if result is None:
+                flash("Your username and/or password is incorrect.")
+            
+            elif password != result["password"]:
+                flash("Your username and/or password is incorrect.")
+            
+            else:
+                user = User(result["id"], result["username"], result["email"], result["first_name"], result["last_name"])
+
+                #Loging In
+                login.login_user(user)
+
+                return redirect("/")
+
+    return render_template("login.html.jinja")
+
+@app.route("/cart")
+@login.login_required
+def cart():
+    return "This is your cart! Add items you want and proceed with payment and shipping!"
+
+@app.route("/logout")
+def logout():
+    login.logout_user()
+    return redirect("/")
+
