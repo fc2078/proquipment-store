@@ -167,6 +167,64 @@ def login_page():
 
     return render_template("login.html.jinja")
 
+@app.route("/product/<product_id>/cart", methods=["POST"])
+@login.login_required
+def add_to_cart(product_id):
+    """Customer adds product to cart. Login is REQUIRED."""
+    # get quantity from form
+    quantity = request.form["quantity"]
+
+    # check if quantity is a number
+    if not quantity.isdigit():
+        abort(400)
+
+    # check if quantity is positive
+    if int(quantity) <= 0:
+        abort(400)
+
+    # check if product exists
+    conn = connect_db()
+    cursor = conn.cursor()
+
+    cursor.execute(f"SELECT * FROM `product` WHERE `id` = {product_id};")
+
+    result = cursor.fetchone()
+
+    if result is None:
+        abort(404)
+
+    # check if customer has enough stock
+    if result["quantity"] < int(quantity):
+        abort(400)
+
+    # get customer id
+    customer_id = login.current_user.get_id()
+
+    # add data to database
+    cursor.execute(f"""
+        INSERT INTO `cart`
+            (`customer_id`, `product_id`, `quantity`)
+        VALUES
+            ({customer_id}, {product_id}, {quantity});
+    """)
+
+    # update product quantity
+    cursor.execute(f"UPDATE `product` SET `quantity` = `quantity` - {quantity} WHERE `id` = {product_id};")
+
+    # commit changes
+    conn.commit()
+
+    cursor.close()
+    conn.close()
+
+    return redirect("/cart.html.jinja")
+
+    # redirect user to cart page
+    
+
+
+
+
 @app.route("/cart")
 @login.login_required
 def cart():
@@ -176,4 +234,3 @@ def cart():
 def logout():
     login.logout_user()
     return redirect("/")
-
