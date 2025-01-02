@@ -2,7 +2,7 @@
 from flask import Flask, render_template, request, redirect, flash, abort
 import pymysql
 from dynaconf import Dynaconf
-import flask_login as login
+import flask_login
 
 # Declare Flash application
 app = Flask(__name__)
@@ -64,7 +64,7 @@ def product_page(product_id):
 # Signup page
 @app.route("/signup", methods=["POST", "GET"])
 def signup_page():
-    if login.current_user.is_authenticated():
+    if flask_login.current_user.is_authenticated:
         return redirect("/")
     else:
         if request.method == "POST":
@@ -96,7 +96,7 @@ def signup_page():
     return render_template("signup.html.jinja")
 
 # Login manager
-login_manager = login.LoginManager()
+login_manager = flask_login.LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = "/login"
 
@@ -123,7 +123,7 @@ def load_user(user_id):
     
     cursor = conn.cursor()
 
-    cursor.execute(f"SELECT * FROM `Customer` WHERE `id` = {user_id};")
+    cursor.execute(f"SELECT * FROM `customer` WHERE `id` = {user_id};")
 
     result = cursor.fetchone()
     
@@ -136,7 +136,7 @@ def load_user(user_id):
 
 @app.route("/login", methods=["POST", "GET"])
 def login_page():
-    if login.current_user.is_authenticated():
+    if flask_login.current_user.is_authenticated:
         return redirect("/")
     else:
         if request.method == "POST":
@@ -147,7 +147,7 @@ def login_page():
 
             cursor = conn.cursor()
 
-            cursor.execute(f"SELECT * FROM `Customer` WHERE `username` = '{username}';")
+            cursor.execute(f"SELECT * FROM `customer` WHERE `username` = '{username}';")
             
             result = cursor.fetchone()
 
@@ -161,14 +161,14 @@ def login_page():
                 user = User(result["id"], result["username"], result["email"], result["first_name"], result["last_name"])
 
                 #Loging In
-                login.login_user(user)
+                flask_login.login_user(user)
 
                 return redirect("/")
 
-    return render_template("login.html.jinja")
+    return render_template("flask_login.html.jinja")
 
 @app.route("/product/<product_id>/cart", methods=["POST"])
-@login.login_required
+@flask_login.login_required
 def add_to_cart(product_id):
     """Customer adds product to cart. Login is REQUIRED."""
     # get quantity from form
@@ -198,7 +198,7 @@ def add_to_cart(product_id):
         abort(400)
 
     # get customer id
-    customer_id = login.current_user.get_id()
+    customer_id = flask_login.current_user.get_id()
 
     # add data to database
     cursor.execute(f"""
@@ -226,11 +226,18 @@ def add_to_cart(product_id):
 
 
 @app.route("/cart")
-@login.login_required
+@flask_login.login_required
 def cart():
-    return "This is your cart! Add items you want and proceed with payment and shipping!"
+    conn = connect_db()
+    cursor = conn.cursor()
+    customer_id = flask_login.current_user.get_id()
+    cursor.execute(f"SELECT * FROM `cart` WHERE `customer_id` = {customer_id};")
+    result =  cursor.fetchall()
+    cursor.close()
+    conn.close()
+    return render_template("cart.html.jinja", product = result)
 
 @app.route("/logout")
 def logout():
-    login.logout_user()
+    flask_login.logout_user()
     return redirect("/")
