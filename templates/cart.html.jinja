@@ -13,7 +13,9 @@
 <body>
     {% include "components/navbar.html.jinja"%}
     <h1>Shopping Cart</h1>
-    <p>This is your cart! Add items you want to proceed to checkout and shipping.</p>
+    {% if product|length == 0 %}
+    <p>Nothing in here...</p>
+    {% else %}
     <br>
     <div class="table-responsive table-striped-columns">
         <table class="table">
@@ -23,11 +25,15 @@
                 <td>{{product["price"]}}</td>
                 <td>{{product["quantity"]}}</td>
             </tr>
+            <form action="/cart/remove_cart" method="post">
+                <button id="buy" class="btn btn-danger" type="submit" name="id" value="{{item['id']}}">Remove</button>
+            </form>
         </table>
+        <p> Total: ${{sum}}</p>
     </div>
-
+    {% endif %}
     <footer>
-        <p>Do not redistribute.</p>
+        <p>Copyright</p>
     </footer>
 
     <br>

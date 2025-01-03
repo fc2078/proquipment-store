@@ -165,7 +165,7 @@ def login_page():
 
                 return redirect("/")
 
-    return render_template("flask_login.html.jinja")
+    return render_template("login.html.jinja")
 
 @app.route("/product/<product_id>/cart", methods=["POST"])
 @flask_login.login_required
@@ -233,9 +233,28 @@ def cart():
     customer_id = flask_login.current_user.get_id()
     cursor.execute(f"SELECT * FROM `cart` WHERE `customer_id` = {customer_id};")
     result =  cursor.fetchall()
+    total = 0 
+    if len(result) > 0:
+        for item in result:
+            total += (item["price"] * item["quantity"])
+        total = f"{total:.2f}"
+
     cursor.close()
     conn.close()
-    return render_template("cart.html.jinja", product = result)
+    
+    return render_template("cart.html.jinja", product = result, sum = total)
+
+@app.route("/cart/remove_cart", methods=["POST"])
+def remove_cart():
+    conn = connect_db()
+    cursor = conn.cursor()
+    customer_id = flask_login.current_user.get_id()
+    product_id = request.form["product_id"]
+    cursor.execute(f"DELETE FROM `cart` WHERE `customer_id` = {customer_id} `cart_id` = {id};")
+    conn.commit()
+    cursor.close()
+    conn.close()
+    return redirect("/cart")
 
 @app.route("/logout")
 def logout():
