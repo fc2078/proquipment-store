@@ -20,13 +20,21 @@
     <div class="table-responsive table-striped-columns">
         <table class="table">
             {{ product }}
-            <tr>
-                <td>{{product["name"]}}</td>
-                <td>{{product["price"]}}</td>
-                <td>{{product["quantity"]}}</td>
-            </tr>
-            <form action="/cart/remove_cart" method="post">
-                <button id="buy" class="btn btn-danger" type="submit" name="id" value="{{item['id']}}">Remove</button>
+
+            <td>
+                <form action="/cart/{{ item['id'] }}/update" method="post">
+                    <input type="number" class="form-control" style="width: 80px;" value="{{ product['quantity'] }}"
+                        min="1" name="quantity">
+                </form>
+            </td>
+
+            <td>{{product["name"]}}</td>
+            <td>{{product["price"]}}</td>
+            <td>{{product["quantity"]}}</td>
+
+            <form action="/cart/{{['id']}}/remove" method="post">
+                <button form="updateForm-{{ item['id'] }}" id="remove" class="btn btn-danger" type="submit" name="id"
+                    value="{{item['id']}}">Remove</button>
             </form>
         </table>
         <p> Total: ${{sum}}</p>

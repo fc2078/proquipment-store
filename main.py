@@ -244,8 +244,9 @@ def cart():
     
     return render_template("cart.html.jinja", product = result, sum = total)
 
-@app.route("/cart/remove_cart", methods=["POST"])
-def remove_cart():
+@app.route("/cart/{{['id']}}/remove", methods=["POST"])
+@flask_login.login_required
+def remove_cart(id):
     conn = connect_db()
     cursor = conn.cursor()
     customer_id = flask_login.current_user.get_id()
