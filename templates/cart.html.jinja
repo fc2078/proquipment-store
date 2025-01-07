@@ -15,29 +15,40 @@
     <h1>Shopping Cart</h1>
     {% if product|length == 0 %}
     <p>Nothing in here...</p>
+    <p>Find what you need <a>here.</a></p>
     {% else %}
     <br>
     <div class="table-responsive table-striped-columns">
-        <table class="table">
-            {{ product }}
+        <table class="table table-dark table-hover">
+            <tbody>
+                {{ product }}
 
-            <td>
-                <form action="/cart/{{ item['id'] }}/update" method="post">
-                    <input type="number" class="form-control" style="width: 80px;" value="{{ product['quantity'] }}"
-                        min="1" name="quantity">
+                <td>
+                    <form action="/cart/{{ item['id'] }}/update" method="post">
+                        <input type="number" class="form-control" style="width: 80px;" value="{{ product['quantity'] }}"
+                            min="1" name="quantity">
+                    </form>
+                </td>
+
+                <td>{{product["name"]}}</td>
+                <td>{{product["price"]}}</td>
+                <td>{{product["quantity"]}}</td>
+
+                <form action="/cart/{{['id']}}/remove" method="post">
+                    <button form="updateForm-{{ item['id'] }}" id="remove" class="btn btn-danger" type="submit"
+                        name="id" value="{{item['id']}}"><i class="bi bi-ban">Remove</i></button>
                 </form>
-            </td>
-
-            <td>{{product["name"]}}</td>
-            <td>{{product["price"]}}</td>
-            <td>{{product["quantity"]}}</td>
-
-            <form action="/cart/{{['id']}}/remove" method="post">
-                <button form="updateForm-{{ item['id'] }}" id="remove" class="btn btn-danger" type="submit" name="id"
-                    value="{{item['id']}}">Remove</button>
-            </form>
+            </tbody>
+            <tfoot>
+                <tr>
+                    <td colspan="4" class="text-end">Total:</td>
+                    <td colspan="2">
+                        <strong>${{"%.2f | format(cart_total)"}}</strong>
+                    </td>
+                </tr>
+            </tfoot>
         </table>
-        <p> Total: ${{sum}}</p>
+
     </div>
     {% endif %}
     <footer>

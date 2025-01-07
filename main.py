@@ -205,7 +205,8 @@ def add_to_cart(product_id):
         INSERT INTO `cart`
             (`customer_id`, `product_id`, `quantity`)
         VALUES
-            ({customer_id}, {product_id}, {quantity});
+            ({customer_id}, {product_id}, {quantity})
+        ON DUPLICATE KEY UPDATE `quantity` = `quantity` + VALUES(`quantity`);
     """)
 
     # update product quantity
@@ -221,10 +222,7 @@ def add_to_cart(product_id):
 
     # redirect user to cart page
     
-
-
-
-
+# Cart setup
 @app.route("/cart")
 @flask_login.login_required
 def cart():
@@ -244,6 +242,7 @@ def cart():
     
     return render_template("cart.html.jinja", product = result, sum = total)
 
+# Remove items from cart
 @app.route("/cart/{{['id']}}/remove", methods=["POST"])
 @flask_login.login_required
 def remove_cart(id):
@@ -257,6 +256,7 @@ def remove_cart(id):
     conn.close()
     return redirect("/cart")
 
+# User logout
 @app.route("/logout")
 def logout():
     flask_login.logout_user()

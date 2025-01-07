@@ -20,7 +20,7 @@
             <div class="col-md-10 col-lg-7 col-11">
                 <div class="col text-start">
                     <div>
-                        <span class="fs-3 me-4">${{product["price"]}}</span>
+                        <span class="fs-3 me-4">${{ "%.2f" | format}}{{product["price"]}}</span>
                         <br>
                         <form method="post">
                             <div>
