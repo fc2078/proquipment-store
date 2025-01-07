@@ -1,61 +1,76 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, width=device-width">
+    <title>Technoflare</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
-    <title>My Cart</title>
+    <link rel="stylesheet" href="/static/styles.css">
 </head>
 
-<body>
-    {% include "components/navbar.html.jinja"%}
-    <h1>Shopping Cart</h1>
-    {% if product|length == 0 %}
-    <p>Nothing in here...</p>
-    <p>Find what you need <a>here.</a></p>
-    {% else %}
-    <br>
-    <div class="table-responsive table-striped-columns">
-        <table class="table table-dark table-hover">
-            <tbody>
-                {{ product }}
-
-                <td>
-                    <form action="/cart/{{ item['id'] }}/update" method="post">
-                        <input type="number" class="form-control" style="width: 80px;" value="{{ product['quantity'] }}"
-                            min="1" name="quantity">
-                    </form>
-                </td>
-
-                <td>{{product["name"]}}</td>
-                <td>{{product["price"]}}</td>
-                <td>{{product["quantity"]}}</td>
-
-                <form action="/cart/{{['id']}}/remove" method="post">
-                    <button form="updateForm-{{ item['id'] }}" id="remove" class="btn btn-danger" type="submit"
-                        name="id" value="{{item['id']}}"><i class="bi bi-ban">Remove</i></button>
-                </form>
-            </tbody>
-            <tfoot>
-                <tr>
-                    <td colspan="4" class="text-end">Total:</td>
-                    <td colspan="2">
-                        <strong>${{"%.2f | format(cart_total)"}}</strong>
-                    </td>
+<body class="bodyColor">
+    {% include "components/navbar.html.jinja" %}
+    <h1>Cart</h1>
+    {%if cartContents|count == 0%}
+    <p class="fs-2">There's nothing in your cart! <a href="./browse.html.jinja">Shop the store.</a></p>
+    {%else%}
+    <div class="position-absolute start-0 w-100">
+        <table class="table bgTeal object-fit-sm-scale w-100">
+            <thead class="bgTeal vw-100">
+                <tr class="object-fit-sm-scale">
+                    <th scope="col" class="fs-3 col-2 bgTeal object-fit-sm-scale">Product</th>
+                    <th scope="col" class="fs-3 col-4 bgTeal object-fit-sm-scale"></th>
+                    <th scope="col" class="fs-3 col-2 bgTeal object-fit-sm-scale">Price</th>
+                    <th scope="col" class="fs-3 col-2 bgTeal object-fit-sm-scale">Quantity</th>
+                    <th scope="col" class="fs-3 col-1 bgTeal object-fit-sm-scale">Total</th>
+                    <th scope="col" class="fs-3 col bgTeal object-fit-sm-scale"></th>
+                    <th scope="col" class="fs-3 col bgTeal object-fit-sm-scale"></th>
+                    <th scope="col" class="fs-3 col-1 object-fit-sm-scale"></th>
                 </tr>
-            </tfoot>
+            </thead>
+            <tbody class="bgTeal">
+                {%for product in cartContents%}
+                <tr>
+                    <th scope="row" class="bgTeal object-fit-sm-scale"><img src="{{product.image}}" height="200px"></th>
+                    <td class="fs-4 justify-center bgTeal object-fit-sm-scale">{{product.name}}</td>
+                    <td class="fs-4 bgTeal object-fit-sm-scale">${{"%.2f" | format(product.price)}}</td>
+                    <td class="fs-4 bgTeal object-fit-sm-scale">
+                        <form id="updateForm{{product['id']}}" action="/cart/{{product['id']}}/update" method="POST">
+                            <input type="number" class="form-control" style="width:100px" value="{{product.quantity}}"
+                                min="1" name="upd_quantity">
+                        </form>
+                    </td>
+                    <td class="fs-4 bgTeal object-fit-sm-scale">${{"%.2f" | format(product.price * product.quantity)}}
+                    </td>
+                    <td class="fs-5 bgTeal object-fit-sm-scale">
+                        <button form="updateForm{{product['id']}}" class="button edit_btn border-0 py-2 px-2"
+                            type="submit"><svg xmlns="http://www.w3.org/2000/svg" width="30" height="30"
+                                fill="currentColor" class="bi bi-pencil" viewBox="0 0 16 16">
+                                <path
+                                    d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325" />
+                            </svg></button>
+                    </td>
+                    <form action="/cart/remove_cart" method="POST" class="object-fit-sm-scale">
+                        <td class="fs-5 bgTeal object-fit-sm-scale"><button class="button remove_btn border-0 py-2 px-2"
+                                type="submit" name="id" value="{{product['id']}}"><svg
+                                    xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor"
+                                    class="bi bi-trash" viewBox="0 0 16 16">
+                                    <path
+                                        d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z" />
+                                    <path
+                                        d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z" />
+                                </svg></button></td>
+                    </form>
+                    <td class="object-fit-sm-scale"></td>
+                </tr>
+                {%endfor%}
+            </tbody>
         </table>
-
+        <p class="fs-3 ms-4">Total: ${{sum}}</p>
     </div>
-    {% endif %}
-    <footer>
-        <p>Copyright</p>
-    </footer>
-
-    <br>
+    {%endif%}
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
         crossorigin="anonymous"></script>
