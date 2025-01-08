@@ -80,14 +80,14 @@ def product_browse():
     if query is None:
         cursor.execute("SELECT * FROM `Product`;")
     else:
-        cursor.execute(f"SELECT * FROM `Product` WHERE `name` LIKE '%{query}%' OR `description` LIKE '%{query}%' OR `price` LIKE '%{query}%' OR `type` LIKE '%{query}%';")
+        cursor.execute(f"SELECT * FROM `Product` WHERE `name` LIKE '%{query}%' OR `description` LIKE '%{query}%' OR `price` LIKE '%{query}%';")
     results = cursor.fetchall()
     cursor.close()
     conn.close()
     return render_template("browse.html.jinja", products = results)
 
 
-##Individual Product Page
+# Separate page per product
 @app.route("/product/<product_id>")
 def product_page(product_id):
     conn = connect_db()
@@ -101,7 +101,7 @@ def product_page(product_id):
     return render_template("product.html.jinja", product = result)
         
 
-##Add to Cart Functionality
+# Add item to cart
 @app.route("/product/<product_id>/cart", methods=["POST"])
 @flask_login.login_required
 def add_to_cart(product_id):
@@ -110,19 +110,19 @@ def add_to_cart(product_id):
     conn = connect_db()
     cursor = conn.cursor()
     cursor.execute(f"""
-        INSERT INTO `Cart`
-            (`customer_id`, `product_id`, `quantity`)
-        VALUES
-            ({customer_id}, {product_id}, {quantity})
-        ON DUPLICATE KEY UPDATE
-            `quantity` = `quantity` + {quantity}
-        ;""")
+    INSERT INTO `Cart`
+        (`customer_id`, `product_id`, `quantity`)
+    VALUES
+        ({customer_id}, {product_id}, {quantity})
+    ON DUPLICATE KEY UPDATE
+        `quantity` = `quantity` + {quantity}
+    """)
     cursor.close()
     conn.close()
     return redirect("/cart")
 
 
-##Sign Up Page
+# Sign up page
 @app.route("/signup", methods=["POST", "GET"])
 def signup_page():
     if flask_login.current_user.is_authenticated:
@@ -192,7 +192,7 @@ def login_page():
 
             return redirect("/")
 
-    return render_template("flask_login.html.jinja")
+    return render_template("login.html.jinja")
 
 
 # Cart Page
@@ -206,7 +206,7 @@ def cart_page():
         SELECT
             `name`,
             `price`,
-            `quantity`,
+            `Cart`.`quantity`,
             `image`,
             `product_id`,
             `Cart`.`id`
@@ -261,7 +261,7 @@ def update_cart(cart_id):
 
     cursor = conn.cursor()
 
-    new_qty = request.form["upd_quantity"]
+    new_qty = request.form["quantity"]
 
     cursor.execute(f"""
     UPDATE `Cart`

@@ -1,5 +1,2 @@
 __pycache__/
 settings.toml
-package-lock.json
-package.json
-node_modules
