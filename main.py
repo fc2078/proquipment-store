@@ -275,6 +275,60 @@ def update_cart(cart_id):
 
     return redirect("/cart")
 
+# Checkout page
+@app.route("/checkout", methods=["GET"])
+@flask_login.login_required
+def checkout():
+    conn = connect_db()
+
+    cursor = conn.cursor()
+
+    customer_id = flask_login.current_user.id
+
+    cursor.execute(f"""
+        SELECT
+            `name`,
+            `price`,
+            `Cart`.`quantity`,
+            `image`,
+            `product_id`,
+            `Cart`.`id`
+        FROM `Cart` 
+        JOIN `Product` on `product_id` = `Product`.`id` 
+        WHERE `customer_id` = {customer_id};
+    """)
+
+    # Fetch cart items
+    results = cursor.fetchall()
+
+    if len(results) == 0:
+        return redirect("/browse")
+    
+    else:
+        total = 0
+
+        for item in results:
+            total += (item["price"] * item["quantity"])
+        total = round(total, 2)
+    
+    # Fetch userinfo
+    cursor.execute(f"""
+        SELECT * FROM `Customer`
+        WHERE `id` = {customer_id}
+    ;""")
+
+    consumer = cursor.fetchone()
+
+    # Close Connections
+    cursor.close()
+    conn.close()
+
+    return render_template("checkout.html.jinja", cartContents = results, sum = total, customer = consumer)
+
+@app.route("/thankyou")
+def thankyou():
+    return render_template("thankyou.html.jinja")
+
 # User logout
 @app.route("/logout")
 def logout():

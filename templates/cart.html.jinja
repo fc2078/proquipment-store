@@ -10,67 +10,81 @@
     <link rel="stylesheet" href="/static/styles.css">
 </head>
 
-<body class="bodyColor">
+<body class="bg-light">
     {% include "components/navbar.html.jinja" %}
-    <h1>Cart</h1>
-    {%if cartContents|count == 0%}
-    <p class="fs-2">There's nothing in your cart! <a href="/browse">Shop the store.</a></p>
-    {%else%}
-    <div class="position-absolute start-0 w-100">
-        <table class="table bgTeal object-fit-sm-scale w-100">
-            <thead class="bgTeal vw-100">
-                <tr class="object-fit-sm-scale">
-                    <th scope="col" class="fs-3 col-2 bgTeal object-fit-sm-scale">Product</th>
-                    <th scope="col" class="fs-3 col-4 bgTeal object-fit-sm-scale"></th>
-                    <th scope="col" class="fs-3 col-2 bgTeal object-fit-sm-scale">Price</th>
-                    <th scope="col" class="fs-3 col-2 bgTeal object-fit-sm-scale">Quantity</th>
-                    <th scope="col" class="fs-3 col-1 bgTeal object-fit-sm-scale">Subtotal</th>
-                    <th scope="col" class="fs-3 col bgTeal object-fit-sm-scale"></th>
-                    <th scope="col" class="fs-3 col bgTeal object-fit-sm-scale"></th>
-                    <th scope="col" class="fs-3 col-1 object-fit-sm-scale"></th>
-                </tr>
-            </thead>
-            <tbody class="bgTeal">
-                {%for product in cartContents%}
-                <tr>
-                    <th scope="row" class="bgTeal object-fit-sm-scale"><img src="{{product.image}}" height="200px"></th>
-                    <td class="fs-4 justify-center bgTeal object-fit-sm-scale">{{product.name}}</td>
-                    <td class="fs-4 bgTeal object-fit-sm-scale">${{"%.2f" | format(product.price)}}</td>
-                    <td class="fs-4 bgTeal object-fit-sm-scale">
-                        <form id="updateForm{{product['id']}}" action="/cart/{{product['id']}}/update" method="POST">
-                            <input type="number" class="form-control" style="width:100px" value="{{product.quantity}}"
-                                min="1" name="quantity">
-                        </form>
-                    </td>
-                    <td class="fs-4 bgTeal object-fit-sm-scale">${{"%.2f" | format(product.price * product.quantity)}}
-                    </td>
-                    <td class="fs-5 bgTeal object-fit-sm-scale">
-                        <button form="updateForm{{product['id']}}" class="button edit_btn border-0 py-2 px-2"
-                            type="submit"><svg xmlns="http://www.w3.org/2000/svg" width="30" height="30"
-                                fill="currentColor" class="bi bi-pencil" viewBox="0 0 16 16">
-                                <path
-                                    d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325" />
-                            </svg></button>
-                    </td>
-                    <form action="/cart/remove_cart" method="POST" class="object-fit-sm-scale">
-                        <td class="fs-5 bgTeal object-fit-sm-scale"><button class="button remove_btn border-0 py-2 px-2"
-                                type="submit" name="id" value="{{product['id']}}"><svg
-                                    xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor"
-                                    class="bi bi-trash" viewBox="0 0 16 16">
-                                    <path
-                                        d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z" />
-                                    <path
-                                        d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z" />
-                                </svg></button></td>
-                    </form>
-                    <td class="object-fit-sm-scale"></td>
-                </tr>
-                {%endfor%}
-            </tbody>
-        </table>
-        <p class="fs-3 ms-4">Subtotal: ${{sum}}</p>
+
+    <div class="container py-5">
+        <h1 class="text-center mb-4">Your Cart</h1>
+
+        {% if cartContents|count == 0 %}
+        <div class="text-center">
+            <p class="fs-4">Your cart is empty! <a href="/browse" class="text-primary">Shop the store</a> to find
+                amazing products.</p>
+        </div>
+        {% else %}
+        <div class="row">
+            <!-- Cart Items -->
+            <div class="col-lg-8">
+                <table class="table table-borderless bg-white shadow-sm rounded">
+                    <thead class="bg-primary text-white">
+                        <tr>
+                            <th scope="col">Image</th>
+                            <th scope="col">Name</th>
+                            <th scope="col">Price</th>
+                            <th scope="col">Quantity</th>
+                            <th scope="col">Subtotal</th>
+                            <th scope="col"></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for product in cartContents %}
+                        <tr>
+                            <td><img src="{{ product.image }}" alt="{{ product.name }}" class="img-thumbnail"
+                                    style="height: 100px;"></td>
+                            <td class="align-middle">{{ product.name }}</td>
+                            <td class="align-middle">${{ "%.2f" | format(product.price) }}</td>
+                            <td class="align-middle">
+                                <form action="/cart/{{ product['id'] }}/update" method="POST" class="d-inline">
+                                    <input type="number" class="form-control d-inline w-50" name="quantity"
+                                        value="{{ product.quantity }}" min="1">
+                                </form>
+                            </td>
+                            <td class="align-middle">${{ "%.2f" | format(product.price * product.quantity) }}</td>
+                            <td class="align-middle">
+                                <form action="/cart/remove_cart" method="POST" class="d-inline">
+                                    <button type="submit" name="id" value="{{ product['id'] }}"
+                                        class="btn btn-danger btn-sm">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                                            fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">
+                                            <path
+                                                d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z" />
+                                            <path
+                                                d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z" />
+                                        </svg>
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Summary Section -->
+            <div class="col-lg-4">
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <h4 class="card-title">Order Summary</h4>
+                        <p class="fs-5">Subtotal: <span class="fw-bold">${{ sum }}</span></p>
+                        <a href="/checkout" class="btn btn-primary w-100">Proceed to Checkout</a>
+                        <a href="/browse" class="btn btn-outline-secondary w-100 mt-2">Continue Shopping</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
     </div>
-    {%endif%}
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
         crossorigin="anonymous"></script>
