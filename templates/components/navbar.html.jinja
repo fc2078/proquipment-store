@@ -22,6 +22,20 @@
                 <li class="nav-item">
                     <a class="nav-link fw-semibold" href="/cart">Cart</a>
                 </li>
+
+                <!-- Account Dropdown (Visible when logged in) -->
+                {% if user_logged_in %}
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle fw-semibold" href="#" role="button" data-bs-toggle="dropdown"
+                        aria-expanded="false">
+                        Account
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="/profile">Profile</a></li>
+                        <li><a class="dropdown-item" href="/logout">Logout</a></li>
+                    </ul>
+                </li>
+                {% else %}
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle fw-semibold" href="#" role="button" data-bs-toggle="dropdown"
                         aria-expanded="false">
@@ -32,6 +46,7 @@
                         <li><a class="dropdown-item" href="/signup">Sign Up</a></li>
                     </ul>
                 </li>
+                {% endif %}
             </ul>
 
             <!-- Right Search Box -->

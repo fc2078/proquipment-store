@@ -280,9 +280,7 @@ def update_cart(cart_id):
 @flask_login.login_required
 def checkout():
     conn = connect_db()
-
     cursor = conn.cursor()
-
     customer_id = flask_login.current_user.id
 
     cursor.execute(f"""
@@ -305,25 +303,38 @@ def checkout():
         return redirect("/browse")
     
     else:
-        total = 0
-
+        subtotal = 0
         for item in results:
-            total += (item["price"] * item["quantity"])
-        total = round(total, 2)
+            subtotal += (item["price"] * item["quantity"])
+        
+        # Calculate taxes (10%) and shipping fees ($5)
+        # Insert any tax rate and shipping charge
+        tax_rate = 0.10
+        shipping_fee = 5.00
+        tax = round(subtotal * tax_rate, 2)
+        total = round(subtotal + tax + shipping_fee, 2)
     
-    # Fetch userinfo
+    # Fetch user info
     cursor.execute(f"""
         SELECT * FROM `Customer`
         WHERE `id` = {customer_id}
     ;""")
-
     consumer = cursor.fetchone()
 
-    # Close Connections
+    # Close connections
     cursor.close()
     conn.close()
 
-    return render_template("checkout.html.jinja", cartContents = results, sum = total, customer = consumer)
+    return render_template(
+        "checkout.html.jinja", 
+        cartContents=results, 
+        subtotal=subtotal, 
+        tax=tax, 
+        shipping=shipping_fee, 
+        total=total, 
+        customer=consumer
+    )
+
 
 @app.route("/thankyou")
 def thankyou():
