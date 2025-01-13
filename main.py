@@ -88,17 +88,49 @@ def product_browse():
 
 
 # Separate page per product
-@app.route("/product/<product_id>")
+@app.route("/product/<product_id>", methods=["GET"])
 def product_page(product_id):
     conn = connect_db()
     cursor = conn.cursor()
+    # Fetch product details for the specified ID
     cursor.execute(f"SELECT * FROM `Product` WHERE `id` = {product_id};")
     result = cursor.fetchone()
+    # Fetch reviews for the product
+    cursor.execute("""
+        SELECT `Review`.review, `Review`.timestamp, `Review`.first_name, `Review`.last_name AS user_name
+        FROM Review
+        JOIN Customer ON `Review`.customer_id = `Customer`.id
+        WHERE `Review`.product_id = %s
+        ORDER BY `Review`.timestamp DESC
+    """, (product_id,))
+    reviews = cursor.fetchall()
     cursor.close()
     conn.close()
     if result is None:
         abort(404)
-    return render_template("product.html.jinja", product = result)
+    return render_template("product.html.jinja", product = result, reviews = reviews)
+
+# Review handler
+@app.route("/product/<int:product_id>/review", methods=["POST"])
+@flask_login.login_required
+def add_review(product_id):
+    review = request.form.get("review")
+    customer_id = flask_login.current_user.id
+
+    conn = connect_db()
+    cursor = conn.cursor()
+
+    # Insert review into the database
+    cursor.execute("""
+        INSERT INTO Review (product_id, customer_id, review, timestamp)
+        VALUES (%s, %s, %s, NOW())
+    """, (product_id, customer_id, review))
+    conn.commit()
+
+    cursor.close()
+    conn.close()
+
+    return redirect(f"/product/{product_id}")
         
 
 # Add item to cart
