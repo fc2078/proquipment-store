@@ -92,45 +92,53 @@ def product_browse():
 def product_page(product_id):
     conn = connect_db()
     cursor = conn.cursor()
-    # Fetch product details for the specified ID
-    cursor.execute(f"SELECT * FROM `Product` WHERE `id` = {product_id};")
-    result = cursor.fetchone()
-    # Fetch reviews for the product
+
+    # Fetch product details
+    cursor.execute("SELECT * FROM Product WHERE id = %s", (product_id,))
+    product = cursor.fetchone()
+
+    # Fetch reviews and ratings
     cursor.execute("""
-        SELECT `Review`.review, `Review`.timestamp, `Review`.first_name, `Review`.last_name AS user_name
+        SELECT Review.review, Review.timestamp, Review.rating, CONCAT(Customer.first_name, ' ', Customer.last_name) AS user_name
         FROM Review
-        JOIN Customer ON `Review`.customer_id = `Customer`.id
-        WHERE `Review`.product_id = %s
-        ORDER BY `Review`.timestamp DESC
+        JOIN Customer ON Review.customer_id = Customer.id
+        WHERE Review.product_id = %s
+        ORDER BY Review.timestamp DESC
     """, (product_id,))
     reviews = cursor.fetchall()
+
     cursor.close()
     conn.close()
-    if result is None:
+
+    if not product:
         abort(404)
-    return render_template("product.html.jinja", product = result, reviews = reviews)
+
+    return render_template("product.html.jinja", product=product, reviews=reviews)
+
 
 # Review handler
-@app.route("/product/<int:product_id>/review", methods=["POST"])
+@app.route("/product/<product_id>/review", methods=["POST"])
 @flask_login.login_required
 def add_review(product_id):
     review = request.form.get("review")
+    rating = int(request.form.get("rating"))
     customer_id = flask_login.current_user.id
 
     conn = connect_db()
     cursor = conn.cursor()
 
-    # Insert review into the database
+    # Insert review and rating into the database
     cursor.execute("""
-        INSERT INTO Review (product_id, customer_id, review, timestamp)
-        VALUES (%s, %s, %s, NOW())
-    """, (product_id, customer_id, review))
+        INSERT INTO Review (customer_id, first_name, last_name, product_id, rating, review, timestamp)
+        VALUES (%s, %s, %s, %s, NOW())
+    """, (product_id, customer_id, review, rating))
     conn.commit()
 
     cursor.close()
     conn.close()
 
     return redirect(f"/product/{product_id}")
+
         
 
 # Add item to cart
@@ -366,6 +374,7 @@ def checkout():
         total=total, 
         customer=consumer
     )
+
 
 
 @app.route("/thankyou")

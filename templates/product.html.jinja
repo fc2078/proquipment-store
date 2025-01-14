@@ -53,8 +53,8 @@
                     <div class="reviews-list mt-4">
                         {% for review in reviews %}
                         <div class="review-item">
-                            <p><strong>{{review["customer_id"]}}</strong></p>
-                            <p>{{review["content"]}}</p>
+                            <p><strong>{{review["user_name"]}}</strong> - Rating: {{review["rating"]}}/5</p>
+                            <p>{{review["review"]}}</p>
                             <p class="text-muted"><small>{{review["timestamp"]}}</small></p>
                         </div>
                         {% endfor %}
@@ -65,6 +65,17 @@
                         <div class="mb-3">
                             <textarea class="form-control" name="review" rows="3" placeholder="Write your review..."
                                 required></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label for="rating" class="form-label">Rating</label>
+                            <select class="form-select" name="rating" id="rating" required>
+                                <option value="" disabled selected>Select your rating</option>
+                                <option value="1">1 - Poor</option>
+                                <option value="2">2 - Fair</option>
+                                <option value="3">3 - Good</option>
+                                <option value="4">4 - Very Good</option>
+                                <option value="5">5 - Excellent</option>
+                            </select>
                         </div>
                         <button type="submit" class="btn btn-submit-review">Submit Review</button>
                     </form>
