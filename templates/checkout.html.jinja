@@ -36,16 +36,14 @@
                     </div>
                     <ul class="list-group list-group-flush">
                         {% for item in cartContents %}
-                        <li class="list-group-item">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <div>
-                                    <a href="/product/{{item['product_id']}}"
-                                        class="product-name text-decoration-none">{{item.name}}</a>
-                                    <span class="badge bg-success ms-2">${{"%.2f" | format(item.price)}}</span>
-                                    <span class="badge bg-secondary ms-2">x{{item.quantity}}</span>
-                                </div>
-                                <div class="fw-bold">${{"%.2f" | format(item.price * item.quantity)}}</div>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <div>
+                                <a href="/product/{{item['product_id']}}"
+                                    class="product-name text-decoration-none">{{item.name}}</a>
+                                <span class="badge bg-success ms-2">${{"%.2f" | format(item.price)}}</span>
+                                <span class="badge bg-secondary ms-2">x{{item.quantity}}</span>
                             </div>
+                            <div class="fw-bold">${{"%.2f" | format(item.price * item.quantity)}}</div>
                         </li>
                         {% endfor %}
                     </ul>
@@ -86,8 +84,13 @@
                     </div>
                     <div class="card-body">
                         <p class="mb-2"><strong>Name:</strong> {{customer.first_name}} {{customer.last_name}}</p>
-                        <p class="mb-2"><strong>Email:</strong> {{customer.email}}</p>
-                        <p class="mb-0"><strong>Address:</strong> {{customer.address}}</p>
+                        <p class="mb-2"><strong>Email:</strong>
+                            <input type="text" class="form-control" name="upd_email" value="{{customer.email}}">
+                        </p>
+                        <p class="mb-2"><strong>Address:</strong>
+                            <input type="text" class="form-control" name="upd_address" value="{{customer.address}}">
+                        </p>
+                        <button class="btn btn-primary mt-3">Update</button>
                     </div>
                 </div>
             </div>
@@ -95,7 +98,9 @@
 
         <!-- Place Order Button -->
         <div class="d-grid mt-4">
-            <button class="btn btn-success btn-lg" href="/thankyou">Place Order</button>
+            <form action="/checkout/sale">
+                <button class="btn btn-success btn-lg" type="submit">Place Order</button>
+            </form>
         </div>
     </div>
 

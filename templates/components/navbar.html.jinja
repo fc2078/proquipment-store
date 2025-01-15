@@ -22,6 +22,9 @@
                 <li class="nav-item">
                     <a class="nav-link fw-semibold" href="/cart">Cart</a>
                 </li>
+                <li class="nav-item">
+                    <a class="nav-link fw-semibold" href="/orders">Orders</a>
+                </li>
 
                 <!-- Account Dropdown (Visible when logged in) -->
                 {% if user_logged_in %}
@@ -50,7 +53,7 @@
             </ul>
 
             <!-- Right Search Box -->
-            <form class="d-flex" role="search" action="/search" method="GET">
+            <form class="d-flex" role="search" action="/browse" method="GET">
                 <input class="form-control me-2 border-primary" type="search" name="query" placeholder="Search products"
                     aria-label="Search">
                 <button class="btn btn-outline-primary" type="submit">Search</button>

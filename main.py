@@ -99,7 +99,11 @@ def product_page(product_id):
 
     # Fetch reviews and ratings
     cursor.execute("""
-        SELECT Review.review, Review.timestamp, Review.rating, CONCAT(Customer.first_name, ' ', Customer.last_name) AS user_name
+        SELECT 
+            Review.review, 
+            Review.rating AS rating_stars, 
+            Review.timestamp, 
+            CONCAT(Customer.first_name, ' ', Customer.last_name) AS user_name
         FROM Review
         JOIN Customer ON Review.customer_id = Customer.id
         WHERE Review.product_id = %s
@@ -107,13 +111,19 @@ def product_page(product_id):
     """, (product_id,))
     reviews = cursor.fetchall()
 
+    # Shorten reviews longer than 300 characters
+    shortened_reviews = []
+    for review in reviews:
+        temp = review["review"][:300] + ("..." if len(review["review"]) > 300 else "")
+        shortened_reviews.append(temp)
+
     cursor.close()
     conn.close()
 
     if not product:
         abort(404)
 
-    return render_template("product.html.jinja", product=product, reviews=reviews)
+    return render_template("product.html.jinja", product=product, reviews=reviews, short=shortened_reviews)
 
 
 # Review handler
@@ -129,15 +139,16 @@ def add_review(product_id):
 
     # Insert review and rating into the database
     cursor.execute("""
-        INSERT INTO Review (customer_id, first_name, last_name, product_id, rating, review, timestamp)
+        INSERT INTO Review (customer_id, product_id, review, rating, timestamp)
         VALUES (%s, %s, %s, %s, NOW())
-    """, (product_id, customer_id, review, rating))
+    """, (customer_id, product_id, review, rating))
     conn.commit()
 
     cursor.close()
     conn.close()
 
     return redirect(f"/product/{product_id}")
+
 
         
 
@@ -375,14 +386,88 @@ def checkout():
         customer=consumer
     )
 
+@app.route("/checkout/sale", methods=["POST"])
+@flask_login.login_required
+def create_sale():
+    conn = connect_db()
+    cursor = conn.cursor()
+
+    try:
+        # Get the current customer's ID
+        customer_id = flask_login.current_user.id
+
+        # Verify if the customer exists and fetch their address
+        cursor.execute("SELECT `address` FROM `Customer` WHERE `id` = %s;", (customer_id,))
+        result = cursor.fetchone()
+        if not result:
+            return "Customer not found", 404
+
+        address = result["address"]
+
+        # Insert a new sale record
+        cursor.execute("""
+            INSERT INTO `Sale` (`customer_id`, `address`, `status`)
+            VALUES (%s, %s, %s);
+        """, (customer_id, address, "Placed"))
+
+        # Get the last inserted sale ID
+        sale_id = cursor.lastrowid
+
+        # Fetch products from the cart
+        cursor.execute("SELECT * FROM `Cart` WHERE `customer_id` = %s;", (customer_id,))
+        products = cursor.fetchall()
+
+        # Insert products into the Sale_Product table
+        for product in products:
+            cursor.execute("""
+                INSERT INTO `Sale_Product` (`sale_id`, `product_id`, `quantity`)
+                VALUES (%s, %s, %s);
+            """, (sale_id, product["product_id"], product["quantity"]))
+
+        # Commit transaction
+        conn.commit()
+
+    except pymysql.err.IntegrityError as e:
+        conn.rollback()
+        return f"Database error: {e}", 500
+    except Exception as e:
+        conn.rollback()
+        return f"Error: {e}", 500
+    finally:
+        cursor.close()
+        conn.close()
+
+    return redirect("/thankyou")
 
 
 @app.route("/thankyou")
 def thankyou():
     return render_template("thankyou.html.jinja")
 
-# User logout
-@app.route("/logout")
-def logout():
-    flask_login.logout_user()
-    return redirect("/")
+@app.route("/orders")
+@flask_login.login_required
+def order_history():
+    conn = connect_db()
+    cursor = conn.cursor()
+    customer_id = flask_login.current_user.id
+
+    # Use parameterized queries
+    cursor.execute("""
+        SELECT
+            `Sale`.`id` AS `sale_id`,
+            `Sale`.`status`,
+            `Sale_Product`.`product_id`,
+            `Product`.`name`,
+            `Product`.`price`,
+            `Sale_Product`.`quantity`
+        FROM `Sale` 
+        JOIN `Sale_Product` ON `Sale`.`id` = `Sale_Product`.`sale_id`
+        JOIN `Product` ON `Sale_Product`.`product_id` = `Product`.`id`
+        WHERE `Sale`.`customer_id` = %s;
+    """, (customer_id,))
+
+    results = cursor.fetchall()
+    cursor.close()
+    conn.close()
+
+    return render_template("orders.html.jinja", orders=results)

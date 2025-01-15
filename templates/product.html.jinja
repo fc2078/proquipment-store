@@ -34,7 +34,7 @@
                         <form action="/product/{{product['id']}}/cart" method="post"
                             class="d-flex align-items-center justify-content-center justify-content-lg-start">
                             <input type="number" class="form-control me-3 quantity-input" id="qty"
-                                placeholder="Quantity" min="1" name="quantity">
+                                placeholder="Quantity" min="1" name="quantity" value="1">
                             <button type="submit" class="btn btn-add-to-cart">Add to Cart</button>
                         </form>
 
@@ -52,14 +52,15 @@
                     <!-- Display Existing Reviews -->
                     <div class="reviews-list mt-4">
                         {% for review in reviews %}
-                        <div class="review-item">
-                            <p><strong>{{review["user_name"]}}</strong> - Rating: {{review["rating"]}}/5</p>
-                            <p>{{review["review"]}}</p>
-                            <p class="text-muted"><small>{{review["timestamp"]}}</small></p>
+                        <div class="review-item card p-3 mb-3">
+                            <p><strong>{{review.get("username", "Anonymous")}}</strong></p>
+                            <p>Rating: <strong>{{review.get("rating_stars", "N/A")}}/5</strong></p>
+                            <p>{{review.get("review", "No review provided.")}}</p>
+                            <p class="text-muted"><small>{{review.get("timestamp", "Unknown date")}}</small></p>
                         </div>
                         {% endfor %}
                     </div>
-
+                    <br>
                     <!-- Add a Review -->
                     <form action="/product/{{product['id']}}/review" method="post" class="mt-4">
                         <div class="mb-3">
@@ -68,14 +69,8 @@
                         </div>
                         <div class="mb-3">
                             <label for="rating" class="form-label">Rating</label>
-                            <select class="form-select" name="rating" id="rating" required>
-                                <option value="" disabled selected>Select your rating</option>
-                                <option value="1">1 - Poor</option>
-                                <option value="2">2 - Fair</option>
-                                <option value="3">3 - Good</option>
-                                <option value="4">4 - Very Good</option>
-                                <option value="5">5 - Excellent</option>
-                            </select>
+                            <input type="number" class="form-control" name="rating" id="rating" placeholder="Rate 1-5"
+                                min="1" max="5" required>
                         </div>
                         <button type="submit" class="btn btn-submit-review">Submit Review</button>
                     </form>
