@@ -18,6 +18,7 @@ app.secret_key = conf.secret_key
 
 # Establish database connection
 def connect_db():
+    """Connect to the phpMyAdmin database (LOCAL STEAM NETWORK ONLY)"""
     conn = pymysql.connect(
         host = "10.100.34.80",
         database = "fchowdury_proquipment_store",
