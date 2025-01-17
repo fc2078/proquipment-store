@@ -35,7 +35,7 @@
                             class="d-flex align-items-center justify-content-center justify-content-lg-start">
                             <input type="number" class="form-control me-3 quantity-input" id="qty"
                                 pla2ceholder="Quantity" min="1" name="quantity" value="1">
-                            <button type="submit" class="btn btn-add-to-cart">Add to Cart</button>
+                            <button type="submit" class="btn btn-success btn-add-to-cart">Add to Cart</button>
                         </form>
 
                         <div class="mt-4">
@@ -46,37 +46,58 @@
 
                 <!-- Reviews Section -->
                 <div class="reviews-section mt-5">
-                    <h3>Customer Reviews</h3>
-                    <h4 class="text-muted">All reviews are sorted from newest to oldest.</h4>
-
                     <!-- Display Existing Reviews -->
                     <div class="reviews-list mt-4">
+                        <h3>Customer Reviews</h3>
+                        <h4 class="text-muted">All reviews are sorted from newest to oldest.</h4>
+                        {% if reviews %}
                         {% for review in reviews %}
-                        <div class="review-item card p-3 mb-3">
-                            <p><strong>{{review.get("username", "Anonymous")}}</strong></p>
-                            <p>Rating: <strong>{{review.get("rating_stars", "N/A")}}/5</strong></p>
-                            <p>{{review.get("review", "No review provided.")}}</p>
-                            <p class="text-muted"><small>{{review.get("timestamp", "Unknown date")}}</small></p>
+                        <div class="review-item card mb-3 shadow-sm">
+                            <div class="card-body">
+                                <!-- Customer Name -->
+                                <h5 class="card-title mb-1">{{ review.user_name or "Anonymous" }}</h5>
+
+                                <!-- Review Rating -->
+                                <div class="d-flex align-items-center mb-2">
+                                    <span class="badge bg-primary me-2">Rating: {{ review.rating_stars }}/5</span>
+                                    <small class="text-muted">
+                                        {% set timestamp = review.get("timestamp", "Unknown date") %}
+                                        {% set formatted_date = timestamp.strftime('%B %d, %Y, at %I:%M %p') %}
+                                        {{ formatted_date }}
+                                    </small>
+
+                                </div>
+
+                                <!-- Review Content -->
+                                <p class="card-text">{{ review.get("review", "No review provided.") }}</p>
+                            </div>
                         </div>
-                        {% endfor %}
+                        <p class="text-muted">All reviews are from verified buyers.</p>
+
                     </div>
-                    <br>
-                    <!-- Add a Review -->
-                    <form action="/product/{{product['id']}}/review" method="post" class="mt-4">
-                        <div class="mb-3">
+                </div>
+                {% endfor %}
+                {% endif %}
+                <hr>
+                <!-- Add a Review -->
+                <form action="/product/{{product['id']}}/review" method="post" class="mt-4">
+                    <div class="mb-3">
+                        <h3 class="form-label">Leave a review</label>
+                            <h5 class="text-muted">Let other shoppers know your experiences and recommendations!
+                            </h5>
                             <textarea class="form-control" name="review" rows="3" placeholder="Write your review..."
                                 required></textarea>
-                        </div>
-                        <div class="mb-3">
-                            <label for="rating" class="form-label">Rating</label>
-                            <input type="number" class="form-control" name="rating" id="rating" placeholder="Rate 1-5"
-                                min="1" max="5" required>
-                        </div>
-                        <button type="submit" class="btn btn-submit-review">Submit Review</button>
-                    </form>
-                </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="rating" class="form-label">Rating</label>
+                        <input type="number" class="form-control" name="rating" id="rating" placeholder="Rate 1-5"
+                            min="1" max="5" required>
+                    </div>
+                    <button type="submit" class="btn btn-submit-review">Submit Review</button>
+                </form>
             </div>
         </div>
+    </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"

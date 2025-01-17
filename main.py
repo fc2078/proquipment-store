@@ -89,16 +89,18 @@ def product_browse():
 
 
 # Separate page per product
-@app.route("/product/<product_id>", methods=["GET"])
-def product_page(product_id):
+@app.route("/product/<product_id>")
+def product_details(product_id):
     conn = connect_db()
     cursor = conn.cursor()
 
-    # Fetch product details
-    cursor.execute("SELECT * FROM Product WHERE id = %s", (product_id,))
+    # Retrieve product details (optional, assuming it's part of the page)
+    cursor.execute("""
+        SELECT * FROM Product WHERE id = %s
+    """, (product_id,))
     product = cursor.fetchone()
 
-    # Fetch reviews and ratings
+    # Retrieve reviews along with full name of the customer
     cursor.execute("""
         SELECT 
             Review.review, 
@@ -112,20 +114,10 @@ def product_page(product_id):
     """, (product_id,))
     reviews = cursor.fetchall()
 
-    # Shorten reviews longer than 300 characters
-    shortened_reviews = []
-    for review in reviews:
-        temp = review["review"][:300] + ("..." if len(review["review"]) > 300 else "")
-        shortened_reviews.append(temp)
-
     cursor.close()
     conn.close()
 
-    if not product:
-        abort(404)
-
-    return render_template("product.html.jinja", product=product, reviews=reviews, short=shortened_reviews)
-
+    return render_template("product.html.jinja", product=product, reviews=reviews)
 
 # Review handler
 @app.route("/product/<product_id>/review", methods=["POST"])
@@ -387,7 +379,7 @@ def checkout():
         customer=consumer
     )
 
-@app.route("/checkout/sale", methods=["POST"])
+@app.route("/checkout/sale")
 @flask_login.login_required
 def create_sale():
     conn = connect_db()
